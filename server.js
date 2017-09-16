@@ -27,6 +27,7 @@ app.get('/', function (req, res) {
 
 // This responds a POST request for the homepage
 app.post('/', function (req, res) {
+   console.log("post request made");
    res.send('Hello POST');
 })
 
