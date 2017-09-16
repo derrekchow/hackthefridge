@@ -1,43 +1,72 @@
 var express = require('express');
 var app = express();
 var watson = require('watson-developer-cloud');
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://IbrahimIrfan:l1l5HJVfJl3ffSwI@cluster0-shard-00-00-471cf.mongodb.net:27017,cluster0-shard-00-01-471cf.mongodb.net:27017,cluster0-shard-00-02-471cf.mongodb.net:27017/htf?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin";
+var bodyParser = require('body-parser')
+app.use( bodyParser.json() );       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+}));
 
-var visual_recognition = watson.visual_recognition({
-  api_key: '6ccb2135cb0de39c10a64b54ee6280e2aa2f8678',
-  version: 'v3',
-  version_date: '2016-05-20'
-});
+app.all('/', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
+ });
 
-// todo: change with post
-app.get('/', function (req, res) {
-  console.log("get request has been made");
-   var name = req.query['name'];
+// from ios app
+app.get('/', function(req, res, next) {
+    console.log("get request has been made");
 
-   var params = {
-     url: "http://52.15.34.99/" + name + ".jpg"
-   };
+    MongoClient.connect(url, function(err, db) {
+        db.collection("photos").find({}).toArray(function(err, result) {
+            if (err) throw err;
+            res.send(toObject(result));
+            db.close();
+        });
 
-   visual_recognition.classify(params, function(err, resp) {
-     if (err)
-       res.send(err);
-     else
-       res.send(JSON.stringify(resp, null, 2));
-   });
+    });
+
 })
+
+function toObject(arr) {
+  var rv = {};
+  for (var i = 0; i < arr.length; ++i)
+    rv[i] = arr[i];
+  return rv;
+}
+
 
 // This responds a POST request for the homepage
-app.post('/', function (req, res) {
-   console.log("post request made");
-   res.send('Hello POST');
-})
+app.post('/', function(req, res, next) {
+  console.log(req.body);
+     MongoClient.connect(url, function(err, db) {
+       if (err) throw err;
 
-var server = app.listen(8081, function () {
+        db.collection("photos").insertOne(req.body, function(err, res2) {
+          if (err) throw err;
+          res.send(res2);
+          db.close();
+        });
+     });
+});
 
-   var host = server.address().address;
-   var port = server.address().port;
+var server = app.listen(3000, function() {
 
-   console.log("Example app listening at http://%s:%s", host, port)
-})
+    var host = server.address().address;
+    var port = server.address().port;
 
-// pi makes post request to save.php with original python code
-// server stores the data in cockroach db
+    console.log("Example app listening at http://%s:%s", host, port)
+});
+
+function drop(){
+  MongoClient.connect(url, function(err, db) {
+  if (err) throw err;
+  db.collection("photos").drop(function(err, delOK) {
+    if (err) throw err;
+    if (delOK) console.log("Collection deleted");
+    db.close();
+  });
+});
+}
