@@ -13,7 +13,7 @@ app.get('/', function (req, res) {
    var name = req.query['name'];
 
    var params = {
-     url: "http://" + name + ".jpg";
+     url: "http://http://52.15.34.99/" + name + ".jpg";
    };
 
    visual_recognition.classify(params, function(err, resp) {
