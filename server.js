@@ -10,7 +10,7 @@ var visual_recognition = watson.visual_recognition({
 
 // todo: change with post
 app.get('/', function (req, res) {
-   imgUrl = req.query['name'];
+   var name = req.query['name'];
 
    var params = {
      url: "http://" + name + ".jpg";
