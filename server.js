@@ -10,6 +10,7 @@ var visual_recognition = watson.visual_recognition({
 
 // todo: change with post
 app.get('/', function (req, res) {
+  console.log("get request has been made");
    var name = req.query['name'];
 
    var params = {
