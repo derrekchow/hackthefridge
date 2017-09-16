@@ -1,5 +1,28 @@
 var express = require('express');
 var app = express();
+var watson = require('watson-developer-cloud');
+
+var visual_recognition = watson.visual_recognition({
+  api_key: '6ccb2135cb0de39c10a64b54ee6280e2aa2f8678',
+  version: 'v3',
+  version_date: '2016-05-20'
+});
+
+// todo: change with post
+app.get('/', function (req, res) {
+   imgUrl = req.query['name'];
+
+   var params = {
+     url: "http://" + name + ".jpg";
+   };
+
+   visual_recognition.classify(params, function(err, resp) {
+     if (err)
+       res.send(err);
+     else
+       res.send(JSON.stringify(resp, null, 2));
+   });
+})
 
 // This responds a POST request for the homepage
 app.post('/', function (req, res) {
