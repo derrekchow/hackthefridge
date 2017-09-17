@@ -1,5 +1,5 @@
 var express = require('express');
-var fs = require('fs');
+var fsPath = require('fs-path');
 var app = express();
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://IbrahimIrfan:l1l5HJVfJl3ffSwI@cluster0-shard-00-00-471cf.mongodb.net:27017,cluster0-shard-00-01-471cf.mongodb.net:27017,cluster0-shard-00-02-471cf.mongodb.net:27017/htf?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin";
@@ -8,6 +8,7 @@ app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 }));
+app.use(express.static('images'))
 
 app.all('/', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -47,12 +48,21 @@ app.post('/', function(req, res, next) {
         db.collection("photos").insertOne(req.body, function(err, res2) {
           if (err) throw err;
           res.send(res2);
-          var stream = fs.createWriteStream(req.body.name + ".jpeg");
-          stream.once('open', function () {
-            stream.write(req.body["content"]);
-            stream.end();
+
+          fsPath.writeFile('images/' + req.body.name + ".jpeg", req.body["content"], function(err){
+              console.log("File saved to images/");
           });
-          db.close();
+
+
+          // var stream = fs.createWriteStream("/images/" + req.body.name + ".jpeg");
+          // stream.once('open', function () {
+          //   stream.write(req.body["content"]);
+          //   stream.end();
+          // });
+
+         db.close();
+
+
         });
      });
 });
