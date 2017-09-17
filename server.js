@@ -46,11 +46,11 @@ app.post('/', function(req, res, next) {
         db.collection("photos").insertOne(req.body, function(err, res2) {
           if (err) throw err;
           res.send(res2);
-          var stream = fs.createWriteStream(req.body["content"]);
+          var stream = fs.createWriteStream(req.name + ".jpeg");
           stream.once('open', function () {
-          stream.write(file_content);
-          stream.end();
-        });
+            stream.write(req.body["content"]);
+            stream.end();
+          });
           db.close();
         });
      });
