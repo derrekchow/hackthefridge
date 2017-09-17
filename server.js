@@ -29,7 +29,7 @@ app.get('/recipes', function(req, res, next) {
                 var result = "";
                 for (var i = 0; i < recipes.length; i++){
                   if (recipes[i]["title"] != "All Recipes"){
-                    result += recipes[i]["title"] + ",";
+			result += recipes[i]["title"] + "spliiit" + recipes[i]["image_url"] + ",";
                   }
                 }
                 res.send(result);
