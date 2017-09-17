@@ -49,7 +49,7 @@ app.post('/', function(req, res, next) {
           if (err) throw err;
           res.send(res2);
 
-          fsPath.writeFile('images/' + req.body.name + ".jpeg", req.body["content"], function(err){
+          fsPath.writeFile('images/' + req.body.name + ".png", req.body["content"], function(err){
               console.log("File saved to images/");
           });
 
