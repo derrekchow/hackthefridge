@@ -1,3 +1,4 @@
+var request = require("request");
 var express = require('express');
 var fsPath = require('fs-path');
 var app = express();
@@ -16,6 +17,27 @@ app.all('/', function(req, res, next) {
   next();
  });
 
+
+app.get('/recipes', function(req, res, next) {
+    console.log("recipe request has been made");
+    var queries = req.query.q;
+    request.get(
+        "http://food2fork.com/api/search?q=" + queries + "&key=de0ff6330aa78fda381aee3ff45fd84d",
+        function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                var recipes = JSON.parse(body)["recipes"];
+                var result = "";
+                for (var i = 0; i < recipes.length; i++){
+                  if (recipes[i]["title"] != "All Recipes"){
+                    result += recipes[i]["title"] + ",";
+                  }
+                }
+                res.send(result);
+            }
+        }
+    );
+})
+
 // from ios app
 app.get('/', function(req, res, next) {
     console.log("get request has been made");
@@ -31,6 +53,11 @@ app.get('/', function(req, res, next) {
 
 })
 
+app.get('/health', function(req, res, next) {
+	console.log("healthcheck");
+	res.send({"check": "success"});
+})
+
 function toObject(arr) {
   var rv = {};
   for (var i = 0; i < arr.length; ++i)
@@ -43,13 +70,19 @@ function toObject(arr) {
 app.post('/', function(req, res, next) {
   console.log(req.body);
      MongoClient.connect(url, function(err, db) {
-       if (err) throw err;
+       if (err) {
+	console.log("a mongo client error occured");
+	throw err;
+	}
 
         db.collection("photos").insertOne(req.body, function(err, res2) {
-          if (err) throw err;
+          if (err) {
+		console.log("insertion error");
+		throw err;
+	}
           res.send(res2);
-
-          fsPath.writeFile('images/' + req.body.name + ".png", req.body["content"], function(err){
+	  var base64 = req.body["content"];
+          fsPath.writeFile('images/' + req.body.name + ".jpeg", base64, "base64", function(err){
               console.log("File saved to images/");
           });
 
