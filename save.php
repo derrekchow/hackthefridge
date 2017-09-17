@@ -10,4 +10,5 @@ if (!empty($content)){
   fwrite($myfile, $content);
   fclose($myfile);
 }
+echo $name . " has been saved";
 ?>
