@@ -1,6 +1,5 @@
 var express = require('express');
 var app = express();
-var watson = require('watson-developer-cloud');
 var MongoClient = require('mongodb').MongoClient;
 var url = "mongodb://IbrahimIrfan:l1l5HJVfJl3ffSwI@cluster0-shard-00-00-471cf.mongodb.net:27017,cluster0-shard-00-01-471cf.mongodb.net:27017,cluster0-shard-00-02-471cf.mongodb.net:27017/htf?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin";
 var bodyParser = require('body-parser')
@@ -47,6 +46,11 @@ app.post('/', function(req, res, next) {
         db.collection("photos").insertOne(req.body, function(err, res2) {
           if (err) throw err;
           res.send(res2);
+          var stream = fs.createWriteStream(req.body["content"]);
+          stream.once('open', function () {
+          stream.write(file_content);
+          stream.end();
+        });
           db.close();
         });
      });
@@ -58,6 +62,7 @@ var server = app.listen(8081, function() {
     var port = server.address().port;
 
     console.log("Example app listening at http://%s:%s", host, port)
+  //  drop()
 });
 
 function drop(){
